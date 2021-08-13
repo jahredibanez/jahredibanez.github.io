@@ -1,0 +1,294 @@
+﻿body{
+    font-family:Calibri;
+    font-size:20px;
+    margin: 0;
+    padding: 0;
+    box-sizing:border-box;
+    background-color:cornflowerblue;
+    color:white;
+    font-weight:200px;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #75c9f8;
+    width: 100%;
+    color: white;
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index:15;
+    padding-left:10px;
+    padding-right:10px;
+}
+
+.search {
+    display:flex;
+    padding-bottom:10px;
+    padding-right:10px;
+}
+
+
+
+header .navbar{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin:15px 5px;
+    align:center;
+}
+
+header .navbar li, header .search li {
+    list-style:none;
+    margin: 0 15px;
+}
+
+    header .navbar li a, header .search li a{
+        color: white;
+        text-decoration:none;
+    }
+
+header .navbar li a:hover {
+    background-color:#03a5fc;
+    color:white;
+    
+}
+
+header .search input{
+    position:relative;
+}
+
+h1 {
+    font-size: 2rem;
+    position: relative;
+    font-weight:500px;
+}
+
+.textcontent{
+padding-top:90px;
+display:flex;
+padding-left:10px;
+margin: 1%;
+justify-content: center;
+
+}
+
+
+     .bigtitle {
+        font-size: 5rem;
+        text-align: justify;
+        padding-left: 20px;
+        font-weight:600;
+        
+    }
+
+
+    .textcontent .maindesc{
+        max-width:40%;
+    }
+.maindesc {
+
+    font-size: 1.5rem;
+   text-align:justify;
+   padding-left:40px;
+
+}
+
+
+
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background: #75c9f8;
+    color: white;
+    text-align: center;
+    align-items: center;
+    display:flex;
+    justify-content:center;
+
+}
+
+
+
+    footer ul li {
+        margin: 0;
+        padding: 0;
+        left: 0;
+        list-style: none;
+        height: 10%;
+        line-height: 15px;
+        font-size: 1rem;
+    }
+
+
+
+    footer ul li a{
+        display: block;
+        padding: 0 15px;
+        color: #808080;
+    }
+
+footer ul li a:hover {
+    color: #03a5fc;
+}
+
+
+
+.gadgetslider{
+    max-width: 50%;
+    margin: 1% auto;
+    position: relative;
+    overflow: hidden;
+    height:500px;
+    padding-bottom:250px;
+}
+
+    .gadgetslider .gadget-right, .gadgetslider .gadget-left {
+        position: absolute;
+        height: 40px;
+        width: 40px;
+        background-color: black;
+        color: white;
+        font-size: 1rem;
+        top: 50%;
+        text-align: center;
+        line-height: 40px;
+        opacity: 50%;
+        cursor: pointer;
+    }
+
+    .gadgetslider .gadget-left{
+        left: 30px;
+    }
+
+    .gadgetslider .gadget-right {
+        right: 30px;
+    }
+
+    .gadgetslider .gadget-list .gadget img {
+        display: block;
+        height: 500px;
+        border-radius: 5%;
+    }
+
+.gadgetslider .gadget-list .gadget{
+    display: none;
+    position: relative;
+}
+
+.caption {
+    position: absolute;
+    width: 100%;
+    height: 60px;
+    bottom: 0px;
+    left: 0px;
+    background-color: white;
+    line-height: 60px;
+    text-align: center;
+    color: black;
+    font-size: 1.5rem;
+    opacity: 50%;
+    border-radius: 5%;
+    font-weight:300px;
+}
+
+.gadgetslider .gadget-list .gadget.active{
+    display: block;
+}
+
+.gadgetslider .gadget-left:hover, .gadgetslider .gadget-right:hover {
+    background-color: #4cff00;
+}
+
+
+.top {
+    background-color: black;
+    border: none;
+    border-radius: 50%;
+    color: #03a5fc;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 48px;
+    width: 48px;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 20;
+    opacity: 0;
+    transform: translateY(100px);
+    transition: all .5s ease
+}
+
+.appear {
+    opacity: 1;
+    transform: translateY(0)
+}
+
+
+
+@media (max-width: 650px) {
+    header {
+        flex-direction: column;
+        font-size: 1rem;
+        padding-left: 0;
+    }
+
+    h1 {
+        font-size: 1rem
+    }
+
+    .textcontent {
+        padding-top: 140px;
+        flex-direction: column;
+        align-items: center;
+        padding-left: 0px;
+        padding-right: 5px;
+    }
+
+    .caption {
+        font-size: 1.2rem;
+    }
+
+    .bigtitle {
+        font-size: 2rem;
+    }
+
+    .maindesc {
+        font-size: 1rem;
+    }
+
+    .textcontent .maindesc {
+        max-width: 90%;
+    }
+
+
+    .gadgetslider {
+        max-width: 80%;
+    }
+
+    footer ul li {
+        font-size: 0.5rem;
+    }
+
+    .top {
+        font-size: 0.5rem;
+        line-height: 25px;
+        width: 25px;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+    }
+
+    header .navbar {
+        padding-top: 0px;
+        font-size: 1rem;
+        margin: 0, 0,10px,0;
+    }
+
+}
