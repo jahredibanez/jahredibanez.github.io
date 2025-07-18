@@ -59,13 +59,14 @@
             justify-content: center;
             color: white;
             border-radius: 10px;
+            z-index: 10;
         }
         .start-screen p, .game-over-screen p {
             font-size: 1.2rem;
             margin: 0.5rem 0;
             padding: 0 1rem;
         }
-        .start-screen .controls, .game-over-screen .controls {
+        .start-screen .controls {
             font-size: 1rem;
             color: #a0aec0;
             margin-top: 1rem;
@@ -112,11 +113,14 @@
         const playerHeight = 40;
         const playerSpeed = 25;
         const itemSize = 40;
-        const itemFallSpeed = 3;
-        const itemSpawnRate = 1000; // milliseconds
+        const baseItemFallSpeed = 2.5;
+        const itemSpawnRate = 900; // milliseconds
 
         const goodFoods = ['🍕', '🍔', '🍣', '🍩', '🍜'];
         const badFood = '🥦';
+        const bonusItem = '⭐'; // +50 points
+        const speedUpItem = '🌶️'; // Speeds up game
+        const slowDownItem = '⏰'; // Slows down game
 
         // --- Game State ---
         let score = 0;
@@ -125,6 +129,11 @@
         let itemSpawner;
         let gameState = 'start'; // 'start', 'playing', 'gameOver'
         let animationFrameId;
+        
+        // Power-up state
+        let currentFallSpeed = baseItemFallSpeed;
+        let powerUpTimer = 0;
+        let powerUpActive = false;
 
         // --- Player Object ---
         const player = {
@@ -150,31 +159,79 @@
 
         // --- Game Functions ---
         function spawnItem() {
-            const isGood = Math.random() > 0.2; // 80% chance for good food
+            const rand = Math.random();
+            let newItem;
+
+            if (rand < 0.05 && !powerUpActive) { // 5% chance for a Star
+                newItem = { type: 'bonus', emoji: bonusItem };
+            } else if (rand < 0.10 && !powerUpActive) { // 5% chance for a Clock
+                newItem = { type: 'slowDown', emoji: slowDownItem };
+            } else if (rand < 0.15 && !powerUpActive) { // 5% chance for a Chili
+                newItem = { type: 'speedUp', emoji: speedUpItem };
+            } else if (rand < 0.35) { // 20% chance for Broccoli
+                newItem = { type: 'bad', emoji: badFood };
+            } else { // 65% chance for good food
+                newItem = { type: 'good', emoji: goodFoods[Math.floor(Math.random() * goodFoods.length)] };
+            }
+
             const item = {
                 x: Math.random() * (canvasWidth - itemSize),
                 y: -itemSize,
-                emoji: isGood ? goodFoods[Math.floor(Math.random() * goodFoods.length)] : badFood,
-                isGood: isGood,
-                speed: itemFallSpeed + Math.random() * 2
+                emoji: newItem.emoji,
+                type: newItem.type,
             };
             items.push(item);
         }
+        
+        function activatePowerUp(type) {
+            powerUpActive = true;
+            if (type === 'slowDown') {
+                currentFallSpeed /= 2;
+                powerUpTimer = 5000; // 5 seconds
+            } else if (type === 'speedUp') {
+                currentFallSpeed *= 1.8;
+                powerUpTimer = 5000; // 5 seconds
+            }
+        }
 
-        function update() {
+        function update(deltaTime) {
+            // Handle power-up timer
+            if (powerUpActive) {
+                powerUpTimer -= deltaTime;
+                if (powerUpTimer <= 0) {
+                    powerUpActive = false;
+                    // Reset speed based on score
+                    currentFallSpeed = baseItemFallSpeed + (score / 200);
+                }
+            } else {
+                 // Gradually increase speed with score
+                 currentFallSpeed = baseItemFallSpeed + (score / 200);
+            }
+
             // Move items
             items.forEach((item, index) => {
-                item.y += item.speed;
+                item.y += currentFallSpeed;
 
                 // Collision detection
-                if (item.y + itemSize > playerY &&
-                    item.x < playerX + playerWidth &&
-                    item.x + itemSize > playerX) {
+                if (item.y + itemSize > playerY && item.y < playerY + playerHeight &&
+                    item.x + itemSize > playerX && item.x < playerX + playerWidth) {
                     
-                    if (item.isGood) {
-                        score += 10;
-                    } else {
-                        gameOver();
+                    switch(item.type) {
+                        case 'good':
+                            score += 10;
+                            break;
+                        case 'bonus':
+                            score += 50;
+                            break;
+                        case 'bad':
+                            gameOver();
+                            break;
+                        case 'slowDown':
+                            if (!powerUpActive) activatePowerUp('slowDown');
+                            break;
+                        case 'speedUp':
+                             if (!powerUpActive) activatePowerUp('speedUp');
+                            break;
                     }
                     items.splice(index, 1); // Remove caught item
                 }
@@ -199,9 +256,13 @@
             });
         }
 
-        function gameLoop() {
+        let lastTime = 0;
+        function gameLoop(timestamp) {
             if (gameState !== 'playing') return;
-            update();
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+
+            update(deltaTime);
             draw();
             animationFrameId = requestAnimationFrame(gameLoop);
         }
@@ -210,15 +271,18 @@
             gameState = 'playing';
             score = 0;
             items = [];
+            powerUpActive = false;
+            powerUpTimer = 0;
+            currentFallSpeed = baseItemFallSpeed;
             playerX = (canvasWidth - playerWidth) / 2;
             scoreBoard.textContent = `Score: 0`;
             
-            // Clear any previous game over screens
             const existingGameOverScreen = document.querySelector('.game-over-screen');
             if (existingGameOverScreen) existingGameOverScreen.remove();
 
             itemSpawner = setInterval(spawnItem, itemSpawnRate);
-            gameLoop();
+            lastTime = performance.now();
+            gameLoop(lastTime);
         }
 
         function gameOver() {
@@ -226,7 +290,6 @@
             clearInterval(itemSpawner);
             cancelAnimationFrame(animationFrameId);
             
-            // Show Game Over screen
             const gameOverScreen = document.createElement('div');
             gameOverScreen.className = 'game-over-screen';
             gameOverScreen.innerHTML = `
@@ -248,8 +311,10 @@
             startScreen.className = 'start-screen';
             startScreen.innerHTML = `
                 <h2>Welcome to Foodie Drop!</h2>
-                <p>Catch the yummy food (🍕, 🍔) to score points.</p>
-                <p>But avoid the broccoli (🥦)!</p>
+                <p>Catch yummy food (🍕, 🍔) to score points.</p>
+                <p>Catch stars (⭐) for a big bonus!</p>
+                <p>Clocks (⏰) slow things down, but chilis (🌶️) speed them up!</p>
+                <p><strong>Avoid the broccoli (🥦)!</strong></p>
                 <p class="controls">Use ⬅️➡️ arrow keys or touch to move.</p>
                 <button id="start-btn">Start Game</button>
             `;
@@ -272,7 +337,6 @@
             }
         });
 
-        // Touch controls
         canvas.addEventListener('touchmove', e => {
             if (gameState !== 'playing') return;
             e.preventDefault();
@@ -281,7 +345,6 @@
             const scaleX = canvas.width / canvasRect.width;
             let targetX = (touchX - canvasRect.left) * scaleX - (playerWidth / 2);
 
-            // Clamp player position within canvas bounds
             if (targetX < 0) targetX = 0;
             if (targetX > canvasWidth - playerWidth) targetX = canvasWidth - playerWidth;
             
