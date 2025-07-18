@@ -1,155 +1,269 @@
-﻿<!DOCTYPE html>
-
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-
-    <link rel="stylesheet" href="techPHStyle.css" type="text/css" />
-    <script type="text/javascript" src="techPHScript.js" defer></script>
-
-    <title>TechPH</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrabFood Suggester QC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom animation for the result card */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+        /* Simple spinner animation */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #10b981; /* Emerald-500 */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        .mini-loader {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #10b981;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
-<body>
+<body class="bg-gray-900 text-white antialiased">
 
-    <header>
-        <h1>
-            TechPH Shopping
-        </h1>
-            <ul class="navbar">
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Your Account</a></li>
-                <li><a href="#">Messages</a></li>
-                <li><a href="#">On Sale</a></li>
-             
-            </ul>
-            <div class="search">
-                <input type="text" placeholder="Find Items" />
-                <li><a href="#">Search</a></li>
+    <!-- Main Container -->
+    <div class="container mx-auto p-4 md:p-8 max-w-3xl">
+
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight text-emerald-400">What to Eat in QC?</h1>
+            <p class="text-lg text-gray-400 mt-2">Let Gemini help you decide what to order on GrabFood in Quezon City!</p>
+        </header>
+
+        <!-- Mood Selection -->
+        <div class="mb-10">
+            <h2 class="text-2xl font-bold text-center text-white mb-4">How are you feeling tonight?</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button onclick="getSuggestion('Something comforting and hearty', 'mood')" class="category-btn bg-gray-800 hover:bg-emerald-600 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center transition-all">🤗 Comforting</button>
+                <button onclick="getSuggestion('Something light and healthy', 'mood')" class="category-btn bg-gray-800 hover:bg-emerald-600 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center transition-all">🥗 Healthy</button>
+                <button onclick="getSuggestion('A meal to celebrate with', 'mood')" class="category-btn bg-gray-800 hover:bg-emerald-600 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center transition-all">🎉 Celebratory</button>
+                <button onclick="getSuggestion('Something quick and easy', 'mood')" class="category-btn bg-gray-800 hover:bg-emerald-600 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center transition-all">⚡ Quick & Easy</button>
             </div>
-        
-    </header>
-
-    
-
-    <main>
-
-        <div class="textcontent">
-
-            <p class="bigtitle">
-                ON SALE NOW! 8.8!
-            </p>
-
-            <p class="maindesc">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam nec feugiat felis. Mauris non lacus varius, egestas odio a, iaculis velit. Phasellus a luctus erat. Maecenas quis neque elit. Ut fringilla velit pretium mauris varius tristique. Ut fermentum, nulla ac ornare mollis, justo augue pharetra nisl, eu aliquet dolor quam vitae tellus. Cras aliquet massa at venenatis vulputate. Nulla egestas cursus porta. Aliquam interdum purus non fringilla gravida. Sed sollicitudin magna non leo facilisis ultrices. Maecenas facilisis neque eu molestie tristique. Praesent finibus convallis libero, ac tincidunt erat posuere maximus.
-            </p>
-
-
-        </div>
-      
-        <div class="gadgetslider">
-            <div class="gadget-list">
-                <!-- content -->
-                <div class="gadget active">
-                    <img src="https://cdn.pixabay.com/photo/2019/08/26/03/58/samsung-4430690_960_720.jpg" width="100%" />
-                    <div class="caption">
-                        SAMSUNG GALAXY NOTE 20
-                    </div>
-                </div>
-                <!-- content -->
-                <div class="gadget">
-                    <img src="https://cdn.pixabay.com/photo/2015/02/02/15/28/bar-621033_960_720.jpg" width="100%" />
-                    <div class="caption">
-                        IPAD 
-                    </div>
-                </div>
-                <!-- content -->
-                <div class="gadget">
-                    <img src="https://consumer-img.huawei.com/content/dam/huawei-cbg-site/common/mkt/pdp/tablets/matepad/img/huawei-matepad-kv.jpg" width="100%" />
-                    <div class="caption">
-                        HUAWEI MATEPAD
-                    </div>
-                </div>
-                <!-- content -->
-                <div class="gadget">
-                    <img src="https://images.samsung.com/is/image/samsung/p5/ve/cn_tab_s7/cn_tab_s7_v7/galaxy-tab-s7-s7plus-keyboard-spen-mystic-bronze-pc.jpg" width="100%" />
-                    <div class="caption">
-                        SAMSUNG GALAXY TAB S7
-                    </div>
-                </div>
-                <!-- content -->
-                <div class="gadget">
-                    <img src="https://i.dell.com/is/image/DellContent//content/dam/global-site-design/product_images/dell_client_products/desktops/inspiron_desktops/inspiron_3670/mt/pdp/desktop-inspiron-3670mt-gambit-pdp-design-01.jpg?fmt=png-alpha" width="100%" />
-                    <div class="caption">
-                        DELL DESKTOP
-                    </div>
-                </div>
-                <!-- content -->
-                <div class="gadget">
-                    <img src="https://www.howtogeek.com/wp-content/uploads/2019/08/img_5d5c5e467fe0f.jpg?width=1198&trim=1,1&bg-color=000&pad=1,1" width="100%" />
-                    <div class="caption">
-                        MAC
-                    </div>
-                </div>
-                <!-- content -->
-                <div class="gadget">
-                    <img src="https://www.lenovo.com/medias/lenovo-desktop-thinkcentre-m70c-gallery-2.jpg?context=bWFzdGVyfHJvb3R8MTUyMjQ4fGltYWdlL2pwZ3xoZTgvaDFiLzExMDQwMTcyMjQ1MDIyLmpwZ3w1YmM2Njg1Njg1YTY1NmFkMTdiN2FhMDkzMTNhZjA5ZDU4ZTY5ZDgyYjU2MmQ4MTJiOTNjMzRmZGY2YTQ2MGIx" width="100%" />
-                    <div class="caption">
-                        LENOVO
-                    </div>
-                </div>
-                <!-- content -->
-                <div class="gadget">
-                    <img src="https://rog.asus.com/wp-content/uploads/2015/09/G11_Windows_10_screen-980x663.gif" width="100%" />
-                    <div class="caption">
-                        ASUS
-                    </div>
-                </div>
-                <!-- content -->
-                <div class="gadget">
-                    <img src="https://static.acer.com/up/Resource/Acer/Desktop/Aspire%20C%20Series/Aspire-C24/rev-oct-2020/20201012/Aspire_C24_ksp_01.jpg" width="100%" />
-                    <div class="caption">
-                        ACER
-                    </div>
-                </div>
-            </div>
-            <!-- slider controls -->
-            <div class="gadget-left"><</div>
-            <div class="gadget-right">></div>
-            <!-- slider controls -->
-
         </div>
 
+        <!-- Cuisine Selection -->
+        <div>
+            <h2 class="text-2xl font-bold text-center text-white mb-4">Or, pick a cuisine...</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <button onclick="getSuggestion('Filipino', 'category')" class="category-btn bg-gray-800 hover:bg-emerald-600 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center transition-all">🇵🇭 Filipino</button>
+                <button onclick="getSuggestion('Italian', 'category')" class="category-btn bg-gray-800 hover:bg-emerald-600 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center transition-all">🍕 Italian</button>
+                <button onclick="getSuggestion('Japanese', 'category')" class="category-btn bg-gray-800 hover:bg-emerald-600 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center transition-all">🍣 Japanese</button>
+                <button onclick="getSuggestion('American', 'category')" class="category-btn bg-gray-800 hover:bg-emerald-600 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center transition-all">🍔 American</button>
+                <button onclick="getSuggestion('Korean', 'category')" class="category-btn bg-gray-800 hover:bg-emerald-600 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center transition-all">🇰🇷 Korean</button>
+                <button onclick="getSuggestion('Chinese', 'category')" class="category-btn bg-gray-800 hover:bg-emerald-600 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center transition-all">🥡 Chinese</button>
+                <button onclick="getSuggestion('Thai', 'category')" class="category-btn bg-gray-800 hover:bg-emerald-600 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center transition-all">🇹🇭 Thai</button>
+                <button onclick="getSuggestion('Vegetarian', 'category')" class="category-btn bg-gray-800 hover:bg-emerald-600 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center transition-all">🥦 Vegetarian</button>
+            </div>
+             <button onclick="getSuggestion('Adventurous', 'adventurous')" class="category-btn w-full mt-4 bg-emerald-500 text-white hover:bg-emerald-400 p-5 rounded-lg shadow-lg flex items-center justify-center text-lg font-bold transition-all">
+                <span class="mr-2">✨</span>
+                Surprise Me!
+            </button>
+        </div>
 
+        <!-- Result Area -->
+        <div id="result-container" class="mt-8 md:mt-12"></div>
 
+    </div>
 
-    </main>
+    <script>
+        const resultContainer = document.getElementById('result-container');
 
-    <button class="top">Top</button>
+        // This function calls the Gemini API for a food suggestion
+        async function getSuggestion(query, type) {
+            showLoading();
 
-    <footer>
-        <ul>
-            <li><a href="#">Contact us</a></li>
-            <li><a href="#">Copyright</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-        </ul>
+            let prompt;
+            switch(type) {
+                case 'mood':
+                    prompt = `You are a helpful and fun food recommendation assistant for GrabFood. It's Friday night in Quezon City, Philippines. I'm in the mood for "${query}". Suggest one specific, delicious, and popular dish from a real, well-rated restaurant available on GrabFood in Quezon City that fits this mood.`;
+                    break;
+                case 'adventurous':
+                     prompt = `You are a helpful and fun food recommendation assistant for GrabFood. It's Friday night in Quezon City, Philippines. I'm feeling adventurous. Suggest one specific, interesting, and highly-rated dish from a real restaurant on GrabFood in Quezon City. Surprise me!`;
+                    break;
+                case 'category':
+                default:
+                    prompt = `You are a helpful and fun food recommendation assistant for GrabFood. It's Friday night in Quezon City, Philippines. I'm looking for a recommendation in the "${query}" cuisine category. Suggest one specific, delicious, and popular dish from a real, well-rated restaurant available on GrabFood in Quezon City.`;
+                    break;
+            }
 
-        <ul>
-            <li><a href="#">Service</a></li>
-            <li><a href="#">About Us</a></li>
-            <li><a href="#">Careers</a></li>
-        </ul>
-        <ul>
-            <li><a href="#">FAQS</a></li>
-            <li><a href="#">Accessibility</a></li>
-            <li><a href="#">Donate</a></li>
-        </ul>
+            prompt += `\n\nReturn the response ONLY as a JSON object with the following structure:
+                {
+                  "headline": "A fun, catchy headline for your suggestion.",
+                  "restaurantName": "The name of the restaurant.",
+                  "dishName": "The name of the specific dish.",
+                  "description": "A short, mouth-watering description (2-3 sentences) of the dish and why it's a great choice.",
+                  "otherItems": ["A popular item from the same restaurant", "Another popular item", "A third popular item"]
+                }`;
+            
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                generationConfig: { responseMimeType: "application/json" }
+            };
+            
+            const apiKey = ""; // Leave empty, handled by the environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-    </footer>
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
+                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
 
+                const result = await response.json();
+                if (result.candidates && result.candidates[0].content.parts[0].text) {
+                    const suggestion = JSON.parse(result.candidates[0].content.parts[0].text);
+                    displayResult(suggestion);
+                } else {
+                    console.error("Unexpected API response structure:", result);
+                    showError("Sorry, I couldn't get a suggestion. The AI response was unusual. Please try again!");
+                }
+            } catch (error) {
+                console.error("Error fetching suggestion:", error);
+                showError("Oops! Something went wrong. Please check the console and try again.");
+            } finally {
+                enableButtons();
+            }
+        }
+
+        // This function calls the Gemini API for a drink pairing
+        async function getDrinkPairing(dishName, restaurantName) {
+            const drinkButton = document.getElementById('drink-pairing-btn');
+            const drinkResultContainer = document.getElementById('drink-pairing-result');
+            
+            drinkButton.disabled = true;
+            drinkResultContainer.innerHTML = `<div class="flex items-center text-gray-400"><div class="mini-loader mr-2"></div><span>Thinking of a perfect drink...</span></div>`;
+
+            const prompt = `
+                I'm about to order "${dishName}" from "${restaurantName}" on GrabFood.
+                Suggest a specific, commonly available drink (like a soda, juice, milk tea, or coffee) that would pair perfectly with it.
+                Return the response ONLY as a JSON object:
+                {
+                  "drinkName": "The specific name of the drink.",
+                  "reason": "A short, fun, one-sentence reason why this drink is a great pairing."
+                }
+            `;
+
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                generationConfig: { responseMimeType: "application/json" }
+            };
+
+            const apiKey = ""; // Leave empty
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+
+                const result = await response.json();
+                if (result.candidates && result.candidates[0].content.parts[0].text) {
+                    const pairing = JSON.parse(result.candidates[0].content.parts[0].text);
+                    drinkResultContainer.innerHTML = `
+                        <p class="text-lg">
+                            <span class="font-bold text-emerald-400">${pairing.drinkName}.</span>
+                            <span class="text-gray-400 italic">"${pairing.reason}"</span>
+                        </p>
+                    `;
+                } else {
+                     drinkResultContainer.innerHTML = `<p class="text-red-400">Couldn't think of a drink. Please try again!</p>`;
+                }
+            } catch (error) {
+                console.error("Error fetching drink pairing:", error);
+                drinkResultContainer.innerHTML = `<p class="text-red-400">Error getting a drink suggestion.</p>`;
+            } finally {
+                drinkButton.style.display = 'none'; // Hide button after use
+            }
+        }
+
+        function showLoading() {
+            resultContainer.innerHTML = `
+                <div class="flex flex-col items-center justify-center p-8 bg-gray-800 rounded-lg shadow-lg">
+                    <div class="loader"></div>
+                    <p class="mt-4 text-gray-400">Picking the perfect meal for you...</p>
+                </div>
+            `;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.disabled = true);
+        }
+
+        function enableButtons() {
+             document.querySelectorAll('.category-btn').forEach(btn => btn.disabled = false);
+        }
+
+        function displayResult(suggestion) {
+            const otherItemsHtml = suggestion.otherItems.map(item => `
+                <li class="flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>${item}</span>
+                </li>
+            `).join('');
+
+            resultContainer.innerHTML = `
+                <div class="bg-gray-800 rounded-lg shadow-2xl p-6 md:p-8 animate-fadeIn">
+                    <h2 class="text-2xl md:text-3xl font-bold text-emerald-400 mb-2">${suggestion.headline}</h2>
+                    <p class="text-lg text-gray-300 mb-4">
+                        Order the <span class="font-bold text-white">${suggestion.dishName}</span> from <span class="font-bold text-white">${suggestion.restaurantName}</span>!
+                    </p>
+                    <p class="text-gray-400 mb-6">${suggestion.description}</p>
+                    
+                    <div class="border-t border-gray-700 pt-4 mb-6">
+                        <h3 class="font-bold text-lg text-white mb-3">Also popular here:</h3>
+                        <ul class="space-y-2 text-gray-300">
+                            ${otherItemsHtml}
+                        </ul>
+                    </div>
+
+                    <div class="border-t border-gray-700 pt-4">
+                        <div id="drink-pairing-result" class="min-h-[44px] flex items-center">
+                             <button id="drink-pairing-btn" onclick="getDrinkPairing('${suggestion.dishName}', '${suggestion.restaurantName}')" class="bg-emerald-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-emerald-600 transition-colors">
+                                ✨ Suggest a Drink Pairing
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+             resultContainer.innerHTML = `
+                <div class="bg-red-900 border border-red-700 text-red-200 p-6 rounded-lg animate-fadeIn">
+                    <h3 class="font-bold text-lg mb-2">Error</h3>
+                    <p>${message}</p>
+                </div>
+             `;
+        }
+
+    </script>
 </body>
-
-
 </html>
