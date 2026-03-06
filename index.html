@@ -2,360 +2,273 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Foodie Drop Game</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Countdown to _____</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        :root {
+            --primary: #2563eb;
+            --bg-card: #ffffff;
+            --bg-page: #f8fafc;
+            --text-main: #1e293b;
+            --excluded: #f1f5f9;
+            --workday: #dbeafe;
+            --workday-text: #1e40af;
+            --blackout: #fee2e2;
+            --blackout-text: #991b1b;
+            --holiday: #fef9c3;
+            --holiday-text: #854d0e;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-card: #1e293b;
+                --bg-page: #0f172a;
+                --text-main: #f1f5f9;
+                --excluded: #334155;
+                --workday: #1e3a8a;
+                --workday-text: #bfdbfe;
+                --blackout: #7f1d1d;
+                --blackout-text: #fecaca;
+                --holiday: #422006;
+                --holiday-text: #fef08a;
+            }
+        }
+
         body {
-            font-family: 'Nunito', sans-serif;
-            background-color: #1a202c;
-            color: #e2e8f0;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+
+        @media (min-width: 640px) {
+            .calendar-grid {
+                gap: 4px;
+            }
+        }
+
+        .day-box {
+            aspect-ratio: 1 / 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            overflow: hidden;
-            touch-action: none; /* Prevents scrolling on mobile */
+            font-size: 0.75rem;
+            border-radius: 0.25rem;
+            position: relative;
+            transition: transform 0.1s ease;
         }
-        .game-container {
-            background-color: #2d3748;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            text-align: center;
-            width: 95%;
-            max-width: 500px;
+
+        @media (min-width: 640px) {
+            .day-box {
+                font-size: 0.875rem;
+                border-radius: 0.375rem;
+            }
         }
-        h1 {
-            color: #68d391; /* Green-400 */
-            font-weight: 900;
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        #score-board {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-        canvas {
-            background: #4a5568;
-            border-radius: 10px;
-            cursor: pointer;
-            width: 100%;
-        }
-        .start-screen, .game-over-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(45, 55, 72, 0.9);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            border-radius: 10px;
+
+        .day-work { background-color: var(--workday); color: var(--workday-text); font-weight: 600; }
+        .day-excluded { background-color: var(--excluded); opacity: 0.5; }
+        .day-blackout { background-color: var(--blackout); color: var(--blackout-text); text-decoration: line-through; }
+        .day-holiday { background-color: var(--holiday); color: var(--holiday-text); border: 1px dashed var(--holiday-text); }
+        .day-past { opacity: 0.3; filter: grayscale(1); }
+        .day-today { 
+            outline: 2px solid var(--primary); 
+            outline-offset: 1px;
             z-index: 10;
         }
-        .start-screen p, .game-over-screen p {
-            font-size: 1.2rem;
-            margin: 0.5rem 0;
-            padding: 0 1rem;
-        }
-        .start-screen .controls {
-            font-size: 1rem;
-            color: #a0aec0;
-            margin-top: 1rem;
-        }
-        button {
-            background-color: #68d391;
-            color: #1a202c;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.2s ease;
-            margin-top: 1rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        button:hover {
-            background-color: #48bb78; /* Green-500 */
-            transform: scale(1.05);
+
+        .legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; }
+        
+        #progress-bar {
+            transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen p-4 sm:p-6 lg:p-8">
 
-    <div class="game-container">
-        <h1>Foodie Drop!</h1>
-        <div id="score-board">Score: 0</div>
-        <canvas id="gameCanvas"></canvas>
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-6 sm:mb-10">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 tracking-tight text-slate-900 dark:text-white">Countdown to _____</h1>
+            <p class="text-slate-500 italic text-sm sm:text-base">March 1 — April 30, 2026 (Philippines Schedule)</p>
+        </header>
+
+        <!-- Stats Card -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-10">
+            <div class="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 text-center">
+                <span class="text-[10px] sm:text-xs uppercase tracking-widest text-slate-500 font-bold">Total Work Days</span>
+                <div id="total-days" class="text-3xl sm:text-4xl lg:text-5xl font-black mt-1 text-blue-600">--</div>
+            </div>
+            <div class="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 text-center">
+                <span class="text-[10px] sm:text-xs uppercase tracking-widest text-slate-500 font-bold">Days Remaining</span>
+                <div id="remaining-days" class="text-3xl sm:text-4xl lg:text-5xl font-black mt-1 text-emerald-500">--</div>
+            </div>
+            <div class="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 text-center">
+                <span class="text-[10px] sm:text-xs uppercase tracking-widest text-slate-500 font-bold">Progress</span>
+                <div id="progress-percent" class="text-3xl sm:text-4xl lg:text-5xl font-black mt-1 text-orange-500">0%</div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 sm:h-4 mb-8 sm:mb-12 overflow-hidden shadow-inner">
+            <div id="progress-bar" class="bg-blue-600 h-full" style="width: 0%"></div>
+        </div>
+
+        <!-- Calendars -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            <!-- March -->
+            <div class="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <h2 class="text-lg sm:text-xl font-bold mb-4 flex justify-between items-center">
+                    March 2026
+                    <span class="text-[10px] font-normal text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">Month 1</span>
+                </h2>
+                <div class="calendar-grid mb-2 text-[10px] font-bold text-slate-400 uppercase text-center opacity-70">
+                    <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+                </div>
+                <div id="march-calendar" class="calendar-grid"></div>
+            </div>
+
+            <!-- April -->
+            <div class="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <h2 class="text-lg sm:text-xl font-bold mb-4 flex justify-between items-center">
+                    April 2026
+                    <span class="text-[10px] font-normal text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">Month 2</span>
+                </h2>
+                <div class="calendar-grid mb-2 text-[10px] font-bold text-slate-400 uppercase text-center opacity-70">
+                    <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+                </div>
+                <div id="april-calendar" class="calendar-grid"></div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="mt-8 grid grid-cols-2 sm:flex sm:flex-row gap-4 sm:gap-6 justify-center items-center text-xs sm:text-sm text-slate-500">
+            <div class="flex items-center"><span class="legend-dot day-work"></span> Work Day (M-Th)</div>
+            <div class="flex items-center"><span class="legend-dot day-excluded"></span> Weekend/Fri</div>
+            <div class="flex items-center"><span class="legend-dot day-blackout"></span> Custom Break</div>
+            <div class="flex items-center"><span class="legend-dot day-holiday"></span> PH Holiday</div>
+        </div>
+
+        <footer class="mt-12 sm:mt-16 pb-8 text-center text-slate-400 text-[10px] sm:text-xs leading-relaxed px-4">
+            Rules: Excludes Fridays, Weekends, March 30–April 2 (Custom), and PH Holidays (April 2, 3, 9).
+        </footer>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreBoard = document.getElementById('score-board');
-
-        // --- Game Configuration ---
-        const canvasWidth = 500;
-        const canvasHeight = 600;
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
-
-        const playerWidth = 80;
-        const playerHeight = 40;
-        const playerSpeed = 25;
-        const itemSize = 40;
-        const baseItemFallSpeed = 2.5;
-        const itemSpawnRate = 900; // milliseconds
-
-        const goodFoods = ['🍕', '🍔', '🍣', '🍩', '🍜'];
-        const badFood = '🥦';
-        const bonusItem = '⭐'; // +50 points
-        const speedUpItem = '🌶️'; // Speeds up game
-        const slowDownItem = '⏰'; // Slows down game
-
-        // --- Game State ---
-        let score = 0;
-        let playerX = (canvasWidth - playerWidth) / 2;
-        let items = [];
-        let itemSpawner;
-        let gameState = 'start'; // 'start', 'playing', 'gameOver'
-        let animationFrameId;
-        
-        // Power-up state
-        let currentFallSpeed = baseItemFallSpeed;
-        let powerUpTimer = 0;
-        let powerUpActive = false;
-
-        // --- Player Object ---
-        const player = {
-            draw: () => {
-                ctx.fillStyle = '#f6e05e'; // Yellow-400
-                ctx.strokeStyle = '#d69e2e'; // Yellow-600
-                ctx.lineWidth = 4;
-                ctx.beginPath();
-                ctx.moveTo(playerX, playerY);
-                ctx.lineTo(playerX + playerWidth, playerY);
-                ctx.lineTo(playerX + playerWidth - 10, playerY + playerHeight);
-                ctx.lineTo(playerX + 10, playerY + playerHeight);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-                ctx.font = '24px Nunito';
-                ctx.fillStyle = '#1a202c';
-                ctx.textAlign = 'center';
-                ctx.fillText('🧺', playerX + playerWidth / 2, playerY + 30);
-            }
+        const CONFIG = {
+            start: new Date(2026, 2, 1),
+            end: new Date(2026, 3, 30),
+            blackout: {
+                start: new Date(2026, 2, 30),
+                end: new Date(2026, 3, 2)
+            },
+            holidays: [
+                new Date(2026, 3, 2).getTime(), // Maundy Thursday
+                new Date(2026, 3, 3).getTime(), // Good Friday
+                new Date(2026, 3, 9).getTime()  // Araw ng Kagitingan
+            ]
         };
-        const playerY = canvasHeight - playerHeight - 10;
 
-        // --- Game Functions ---
-        function spawnItem() {
-            const rand = Math.random();
-            let newItem;
-
-            if (rand < 0.05 && !powerUpActive) { // 5% chance for a Star
-                newItem = { type: 'bonus', emoji: bonusItem };
-            } else if (rand < 0.10 && !powerUpActive) { // 5% chance for a Clock
-                newItem = { type: 'slowDown', emoji: slowDownItem };
-            } else if (rand < 0.15 && !powerUpActive) { // 5% chance for a Chili
-                newItem = { type: 'speedUp', emoji: speedUpItem };
-            } else if (rand < 0.35) { // 20% chance for Broccoli
-                newItem = { type: 'bad', emoji: badFood };
-            } else { // 65% chance for good food
-                newItem = { type: 'good', emoji: goodFoods[Math.floor(Math.random() * goodFoods.length)] };
-            }
-
-            const item = {
-                x: Math.random() * (canvasWidth - itemSize),
-                y: -itemSize,
-                emoji: newItem.emoji,
-                type: newItem.type,
-            };
-            items.push(item);
-        }
-        
-        function activatePowerUp(type) {
-            powerUpActive = true;
-            if (type === 'slowDown') {
-                currentFallSpeed /= 2;
-                powerUpTimer = 5000; // 5 seconds
-            } else if (type === 'speedUp') {
-                currentFallSpeed *= 1.8;
-                powerUpTimer = 5000; // 5 seconds
-            }
+        function isHoliday(date) {
+            return CONFIG.holidays.includes(date.getTime());
         }
 
-        function update(deltaTime) {
-            // Handle power-up timer
-            if (powerUpActive) {
-                powerUpTimer -= deltaTime;
-                if (powerUpTimer <= 0) {
-                    powerUpActive = false;
-                    // Reset speed based on score
-                    currentFallSpeed = baseItemFallSpeed + (score / 200);
-                }
-            } else {
-                 // Gradually increase speed with score
-                 currentFallSpeed = baseItemFallSpeed + (score / 200);
+        function isWorkDay(date) {
+            const day = date.getDay();
+            // Exclude Friday (5), Saturday (6), Sunday (0)
+            if (day === 0 || day === 5 || day === 6) return false;
+            
+            // Exclude Blackout March 30 - April 2
+            const dTime = date.getTime();
+            if (dTime >= CONFIG.blackout.start.getTime() && dTime <= CONFIG.blackout.end.getTime()) return false;
+            
+            // Exclude Holidays
+            if (isHoliday(date)) return false;
+            
+            return true;
+        }
+
+        function generateCalendar(month, year, containerId) {
+            const container = document.getElementById(containerId);
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                container.appendChild(empty);
             }
 
-            // Move items
-            items.forEach((item, index) => {
-                item.y += currentFallSpeed;
+            for (let d = 1; d <= daysInMonth; d++) {
+                const date = new Date(year, month, d);
+                date.setHours(0,0,0,0);
+                
+                const dayEl = document.createElement('div');
+                dayEl.className = 'day-box';
+                dayEl.innerText = d;
 
-                // Collision detection
-                if (item.y + itemSize > playerY && item.y < playerY + playerHeight &&
-                    item.x + itemSize > playerX && item.x < playerX + playerWidth) {
-                    
-                    switch(item.type) {
-                        case 'good':
-                            score += 10;
-                            break;
-                        case 'bonus':
-                            score += 50;
-                            break;
-                        case 'bad':
-                            gameOver();
-                            break;
-                        case 'slowDown':
-                            if (!powerUpActive) activatePowerUp('slowDown');
-                            break;
-                        case 'speedUp':
-                             if (!powerUpActive) activatePowerUp('speedUp');
-                            break;
-                    }
-                    items.splice(index, 1); // Remove caught item
+                const isBlackout = date.getTime() >= CONFIG.blackout.start.getTime() && 
+                                  date.getTime() <= CONFIG.blackout.end.getTime();
+                const isWork = isWorkDay(date);
+                const isHol = isHoliday(date);
+
+                if (isBlackout) {
+                    dayEl.classList.add('day-blackout');
+                } else if (isHol) {
+                    dayEl.classList.add('day-holiday');
+                } else if (isWork) {
+                    dayEl.classList.add('day-work');
+                } else {
+                    dayEl.classList.add('day-excluded');
                 }
 
-                // Remove items that go off-screen
-                if (item.y > canvasHeight) {
-                    items.splice(index, 1);
+                if (date.getTime() === today.getTime()) {
+                    dayEl.classList.add('day-today');
+                } else if (date.getTime() < today.getTime()) {
+                    dayEl.classList.add('day-past');
                 }
-            });
 
-            scoreBoard.textContent = `Score: ${score}`;
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-            player.draw();
-            
-            // Draw items
-            ctx.font = `${itemSize}px sans-serif`;
-            items.forEach(item => {
-                ctx.fillText(item.emoji, item.x, item.y);
-            });
-        }
-
-        let lastTime = 0;
-        function gameLoop(timestamp) {
-            if (gameState !== 'playing') return;
-            const deltaTime = timestamp - lastTime;
-            lastTime = timestamp;
-
-            update(deltaTime);
-            draw();
-            animationFrameId = requestAnimationFrame(gameLoop);
-        }
-
-        function startGame() {
-            gameState = 'playing';
-            score = 0;
-            items = [];
-            powerUpActive = false;
-            powerUpTimer = 0;
-            currentFallSpeed = baseItemFallSpeed;
-            playerX = (canvasWidth - playerWidth) / 2;
-            scoreBoard.textContent = `Score: 0`;
-            
-            const existingGameOverScreen = document.querySelector('.game-over-screen');
-            if (existingGameOverScreen) existingGameOverScreen.remove();
-
-            itemSpawner = setInterval(spawnItem, itemSpawnRate);
-            lastTime = performance.now();
-            gameLoop(lastTime);
-        }
-
-        function gameOver() {
-            gameState = 'gameOver';
-            clearInterval(itemSpawner);
-            cancelAnimationFrame(animationFrameId);
-            
-            const gameOverScreen = document.createElement('div');
-            gameOverScreen.className = 'game-over-screen';
-            gameOverScreen.innerHTML = `
-                <h2>Game Over!</h2>
-                <p>Your final score is ${score}</p>
-                <button id="restart-btn">Play Again</button>
-            `;
-            canvas.parentElement.style.position = 'relative';
-            canvas.parentElement.appendChild(gameOverScreen);
-
-            document.getElementById('restart-btn').onclick = () => {
-                gameOverScreen.remove();
-                startGame();
-            };
-        }
-
-        function drawStartScreen() {
-            const startScreen = document.createElement('div');
-            startScreen.className = 'start-screen';
-            startScreen.innerHTML = `
-                <h2>Welcome to Foodie Drop!</h2>
-                <p>Catch yummy food (🍕, 🍔) to score points.</p>
-                <p>Catch stars (⭐) for a big bonus!</p>
-                <p>Clocks (⏰) slow things down, but chilis (🌶️) speed them up!</p>
-                <p><strong>Avoid the broccoli (🥦)!</strong></p>
-                <p class="controls">Use ⬅️➡️ arrow keys or touch to move.</p>
-                <button id="start-btn">Start Game</button>
-            `;
-            canvas.parentElement.style.position = 'relative';
-            canvas.parentElement.appendChild(startScreen);
-
-            document.getElementById('start-btn').onclick = () => {
-                startScreen.remove();
-                startGame();
-            };
-        }
-
-        // --- Event Listeners ---
-        document.addEventListener('keydown', e => {
-            if (gameState !== 'playing') return;
-            if (e.key === 'ArrowLeft' && playerX > 0) {
-                playerX -= playerSpeed;
-            } else if (e.key === 'ArrowRight' && playerX < canvasWidth - playerWidth) {
-                playerX += playerSpeed;
+                container.appendChild(dayEl);
             }
-        });
+        }
 
-        canvas.addEventListener('touchmove', e => {
-            if (gameState !== 'playing') return;
-            e.preventDefault();
-            const touchX = e.touches[0].clientX;
-            const canvasRect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / canvasRect.width;
-            let targetX = (touchX - canvasRect.left) * scaleX - (playerWidth / 2);
+        function updateStats() {
+            let totalWorkDays = [];
+            let current = new Date(CONFIG.start);
+            const today = new Date();
+            today.setHours(0,0,0,0);
 
-            if (targetX < 0) targetX = 0;
-            if (targetX > canvasWidth - playerWidth) targetX = canvasWidth - playerWidth;
+            while (current <= CONFIG.end) {
+                if (isWorkDay(current)) {
+                    totalWorkDays.push(new Date(current));
+                }
+                current.setDate(current.getDate() + 1);
+            }
+
+            const remaining = totalWorkDays.filter(d => d >= today).length;
+            const completed = totalWorkDays.length - remaining;
+            const percent = totalWorkDays.length > 0 ? Math.round((completed / totalWorkDays.length) * 100) : 0;
+
+            document.getElementById('total-days').innerText = totalWorkDays.length;
+            document.getElementById('remaining-days').innerText = remaining;
+            document.getElementById('progress-percent').innerText = `${percent}%`;
             
-            playerX = targetX;
-        }, { passive: false });
+            setTimeout(() => {
+                document.getElementById('progress-bar').style.width = `${percent}%`;
+            }, 100);
+        }
 
-        // --- Initial Load ---
         window.onload = () => {
-             drawStartScreen();
+            generateCalendar(2, 2026, 'march-calendar');
+            generateCalendar(3, 2026, 'april-calendar');
+            updateStats();
         };
-
     </script>
 </body>
 </html>
